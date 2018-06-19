@@ -1,0 +1,8 @@
+tqdm
+librosa
+NumPy
+TensorFlow
+matplotlib
+scipy
+num2words
+pandas

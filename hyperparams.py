@@ -2,6 +2,7 @@
 #/usr/bin/python2
 
 import math
+import os
 
 def get_T_y(duration, sr, hop_length, r):
     '''Calculates number of paddings for reduction'''
@@ -102,7 +103,7 @@ class Hyperparams:
     num_iterations = 500000
 
     # Prepo params
-    data = 'datasets/defaultS'
+    data = os.path.join('datasets','defaultS')
     prepro_gpu = 16
     
     # Training and Testing
