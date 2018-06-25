@@ -8,6 +8,14 @@ This is a tensorflow implementation of [NATURAL TTS SYNTHESIS BY CONDITIONING WA
 
 Initially I will use existing components from tacotron and other opensource implementations
 
+### Install
+python pip install -r requirements.txt
+python -c "import nltk; nltk.download('punkt')"
+
+### if you use windows, ffmpeg is needed
+http://adaptivesamples.com/how-to-install-ffmpeg-on-windows/
+
+
 ### Usage
 
 Main configuration is first to decide the 'run options' inside hyperparams.py

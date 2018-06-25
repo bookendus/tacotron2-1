@@ -20,8 +20,9 @@ def embed(inputs, vocab_size, num_units, zero_pad=False, scope="embedding", reus
         if zero_pad:
             lookup_table = tf.concat((tf.zeros(shape=[1, num_units]), 
                                       lookup_table[1:, :]), 0)
-
+        print('====>',lookup_table,"+++++",inputs)
         outputs = tf.nn.embedding_lookup(lookup_table, inputs)
+        print(outputs)
 
     return outputs
  

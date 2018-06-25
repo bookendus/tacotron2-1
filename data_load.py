@@ -15,6 +15,9 @@ from num2words import num2words
 from random import randint
 import pandas as pd
 import random
+import text.korean as korean
+
+from text import sequence_to_text, text_to_sequence
 
 def keep_pho():
     return random.random() > hp.phon_drop
@@ -26,6 +29,13 @@ cmu.drop(['name'],axis=1,inplace=True)
 cmu = list(cmu.set_index('word').to_dict().values()).pop()
 
 def text_normalize(sent):
+    #normalized = korean.normalize(sent)
+    #print(normalized)
+
+    ##skip normalization##
+    return sent
+
+def text_normalize_eng(sent):
     '''Minimum text preprocessing'''
     def _strip_accents(s):
         return ''.join(c for c in unicodedata.normalize('NFD', s)
@@ -200,14 +210,18 @@ def load_data(config,train_form,training=True):
                 sent += "P"*(hp.T_x-len(sent)) #this was added
             else:
                 sent.extend(['#'] * (hp.T_x-len(sent)))
-            pstring = [char2idx[char] for char in sent]  
+            #pstring = [char2idx[char] for char in sent]  
+            #pstring = [text_to_sequence(char) for char in sent] 
+
+            pstring = text_to_sequence(sent)
+            
             texts.append(np.array(pstring, np.int32).tostring())
             _texts_test.append(np.array(pstring,np.int32).tostring())
-            mels.append(os.path.join(config.data_paths, "mels", fname + ".npy"))
+            mels.append(os.path.join(config.data_paths, "mels", fname + ".npy")) #.decode('utf-8'))
             if hp.include_dones:
-                dones.append(os.path.join(config.data_paths, "dones", fname + ".npy"))
+                dones.append(os.path.join(config.data_paths, "dones", fname + ".npy")) #.decode('utf-8'))
             if train_form != 'Encoder':
-                mags.append(os.path.join(config.data_paths, "mags", fname + ".npy"))
+                mags.append(os.path.join(config.data_paths, "mags", fname + ".npy")) #.decode('utf-8'))
 
     return texts, _texts_test, mels, mags, dones
 
@@ -247,11 +261,11 @@ def get_batch(config,train_form):
         # Decoding
         text = tf.decode_raw(text, tf.int32) # (None,)
         texts_test = tf.decode_raw(texts_test, tf.int32) # (None,)
-        mel = tf.py_func(lambda x:np.load(x), [mel], tf.float32) # (None, n_mels)
+        mel = tf.py_func(lambda x:np.load(x.decode('utf-8')), [mel], tf.float32) # (None, n_mels)
         if hp.include_dones:
-            done = tf.py_func(lambda x:np.load(x), [done], tf.int32) # (None,)
+            done = tf.py_func(lambda x:np.load(x.decode('utf-8')), [done], tf.int32) # (None,)
         if train_form != 'Encoder':
-            mag = tf.py_func(lambda x:np.load(x), [mag], tf.float32)
+            mag = tf.py_func(lambda x:np.load(x.decode('utf-8')), [mag], tf.float32)
         
         # Padding
         text = tf.pad(text, ((0, hp.T_x),))[:hp.T_x] # (Tx,)

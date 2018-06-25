@@ -10,8 +10,8 @@ import tensorflow as tf
 from rnn_wrappers import TacotronDecoderWrapper
 from attention_wrapper import AttentionWrapper, LocationBasedAttention, BahdanauAttention
 from helpers import TacoTrainingHelper, TacoTestHelper
-from dynamic_decoder import dynamic_decode
-from custom_decoder import CustomDecoder
+#from dynamic_decoder import dynamic_decode
+#from custom_decoder import CustomDecoder
 
 
 def encoder(inputs, training=True, scope="encoder", reuse=None):

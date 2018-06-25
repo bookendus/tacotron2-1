@@ -16,7 +16,10 @@ def get_T_y(duration, sr, hop_length, r):
 class Hyperparams:
     '''Hyper parameters'''
     # signal processing
-    sr = 22050 # Sampling rate.
+    #sr = 22050 # Sampling rate.
+    num_freq = 1025
+    num_mels = 80
+    sr = 24000 # Sampling rate.
     n_fft = 2048 # fft points (samples)
     frame_shift = 0.0125 # seconds 0.0125
     frame_length = 0.05 # seconds 0.05
@@ -27,27 +30,32 @@ class Hyperparams:
     preemphasis = 0.97 # or None 0.97
     max_db = 100
     ref_db = 25
+    min_db = -100 # added
     lowcut = 125.0
     highcut = 7600.0
     dropout_rate = .5
     z_drop = .1
     norm_type = "ins" # TODO: weight normalization
 
+    # Griffin-Lim
+    griffin_lim_iters = 60
+    power = 1.5 # Power to raise magnitudes to prior to Griffin-Lim
+
     # Model
     r = 1 # Reduction factor 4
     outputs_per_step = 1
     n_feed = 200
-    run_cmu = True
+    run_cmu = False
     sinusoid = False
     normalization  = True
     
     ## Enocder
     phon_drop = 0. #0.2
     if not run_cmu:
-        vocab_size = 32
+        vocab_size = 256 #32
     else:
         vocab_size = 53
-    embed_size = 512 # == e
+    embed_size = 512 # == e   512
     
     enc_layers = 3
     enc_kernel = 5
@@ -85,8 +93,8 @@ class Hyperparams:
 
     # run options
     test_graph = False
-    include_dones = False
-    train_form = 'Converter' # 'Encoder', 'Converter', 'Both'
+    include_dones = True
+    train_form = 'Both' # 'Encoder', 'Converter', 'Both'
     test_only = 0
     print_shapes = True
 
@@ -96,15 +104,15 @@ class Hyperparams:
     logdir = "logs"
     logname = 'demos'
     sampledir = 'samples'
-    puresynth = 'logs/first2'
+    puresynth = os.path.join('logs','first2')
     batch_size = 16
     max_grad_norm = 100.
     max_grad_val = 5.
     num_iterations = 500000
 
     # Prepo params
-    data = os.path.join('datasets','defaultS')
-    prepro_gpu = 16
+    data = os.path.join('datasets','default')
+    prepro_gpu = 0
     
     # Training and Testing
     summary_interval = 1
@@ -112,3 +120,6 @@ class Hyperparams:
     checkpoint_interval = 1
 
     # Remove rnn_wrappers
+
+    # google speech api
+    google_sleep_time = .1

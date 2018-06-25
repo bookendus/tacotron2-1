@@ -166,6 +166,7 @@ def main():
     if (hp.test_only == 0):
         with g.graph.as_default():
             sv = tf.train.Supervisor(logdir=config.log_dir)
+            #sv = tf.train.MonitoredTrainingSession(logdir=config.log_dir)
             with sv.managed_session() as sess:
 
                 #sess = tf_debug.LocalCLIDebugWrapperSession(sess)
