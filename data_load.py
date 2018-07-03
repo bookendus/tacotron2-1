@@ -133,6 +133,16 @@ def load_vocab_cmu():
     
     return char2idx, idx2char
 
+def load_vocab_kr():
+    valid_symbols = korean.ALL_SYMBOLS
+    _valid_symbol_set = set(valid_symbols)
+
+    char2idx = {char: idx for idx, char in enumerate(_valid_symbol_set)}
+    idx2char = {idx: char for idx, char in enumerate(_valid_symbol_set)}
+    
+    return char2idx, idx2char
+    
+
 def str_to_ph(strin):
     strin = re.sub('([A-Z])@','\\1 @',strin)
     strin = re.sub('([A-Z])\*','\\1 *',strin)
@@ -144,6 +154,11 @@ def str_to_ph(strin):
     return strin
 
 def invert_text(txt):
+    pstring = sequence_to_text(txt)
+    print(pstring)
+    return pstring
+
+def invert_text_eng(txt):
     if not hp.run_cmu: 
         char2idx, idx2char = load_vocab()
         pstring = [idx2char[char] for char in txt]
@@ -163,32 +178,45 @@ def invert_text(txt):
 
 def load_test_data():
     # Load vocabulary
-    if not hp.run_cmu: 
+    if hp.run_kr:
+        char2idx, idx2char = load_vocab_kr()
+    elif not hp.run_cmu: 
         char2idx, idx2char = load_vocab()
     else:
         char2idx, idx2char = load_vocab_cmu() 
 
     # Parse
-    texts = []
+    results = []
     for line in codecs.open('test_sents.txt', 'r', 'utf-8'):
-        if not hp.run_cmu: 
+        if hp.run_kr:
+            sent = text_normalize(line) + "E"
+        elif not hp.run_cmu: 
             sent = text_normalize(line).strip() + "E" # text normalization, E: EOS
         else:
             sent = text_normalize_cmu(line) + "*" # text normalization, *: EOS
             sent = break_to_phonemes(sent)
             sent = str_to_ph(sent)
+
         if len(sent) <= hp.T_x:
             if not hp.run_cmu: 
                 sent += "P"*(hp.T_x-len(sent))
             else:
                 sent.extend(['#'] * (hp.T_x-len(sent)))
-            texts.append([char2idx[char] for char in sent])
-    texts = np.array(texts, np.int32)
-    return texts
+            #texts.append([char2idx[char] for char in sent])
+            
+            texts = text_to_sequence(sent)
+            
+            texts = np.array(texts, np.int32).tostring()
+            texts = tf.convert_to_tensor(texts)
+
+            results.append(texts)
+    return results
 
 def load_data(config,train_form,training=True):
     # Load vocabulary
-    if not hp.run_cmu: 
+    if hp.run_kr:
+        char2idx, idx2char = load_vocab_kr()
+    elif not hp.run_cmu: 
         char2idx, idx2char = load_vocab()
     else:
         char2idx, idx2char = load_vocab_cmu()    
@@ -198,30 +226,35 @@ def load_data(config,train_form,training=True):
     num_samples = 1
     metadata = os.path.join(config.data_paths, 'metadata.csv')
     for line in codecs.open(metadata, 'r', 'utf-8'):
-        fname, _, sent = line.strip().split("|")
-        if not hp.run_cmu: 
-            sent = text_normalize(sent) + "E" # text normalization, E: EOS
-        else:
-            sent = text_normalize_cmu(sent) + "*" # text normalization, E: EOS
-            sent = break_to_phonemes(sent)
-            sent = str_to_ph(sent)
-        if len(sent) <= hp.T_x:
-            if not hp.run_cmu: 
-                sent += "P"*(hp.T_x-len(sent)) #this was added
-            else:
-                sent.extend(['#'] * (hp.T_x-len(sent)))
-            #pstring = [char2idx[char] for char in sent]  
-            #pstring = [text_to_sequence(char) for char in sent] 
+        if len(line) > 2:
+            fname, _, sent = line.strip().split("|")
 
-            pstring = text_to_sequence(sent)
-            
-            texts.append(np.array(pstring, np.int32).tostring())
-            _texts_test.append(np.array(pstring,np.int32).tostring())
-            mels.append(os.path.join(config.data_paths, "mels", fname + ".npy")) #.decode('utf-8'))
-            if hp.include_dones:
-                dones.append(os.path.join(config.data_paths, "dones", fname + ".npy")) #.decode('utf-8'))
-            if train_form != 'Encoder':
-                mags.append(os.path.join(config.data_paths, "mags", fname + ".npy")) #.decode('utf-8'))
+            if hp.run_kr:
+                sent = text_normalize(sent) + "E"
+            elif not hp.run_cmu: 
+                sent = text_normalize(sent) + "E" # text normalization, E: EOS
+            else:
+                sent = text_normalize_cmu(sent) + "*" # text normalization, E: EOS
+                sent = break_to_phonemes(sent)
+                sent = str_to_ph(sent)
+                
+            if len(sent) <= hp.T_x:
+                if not hp.run_cmu: 
+                    sent += "P"*(hp.T_x-len(sent)) #this was added
+                else:
+                    sent.extend(['#'] * (hp.T_x-len(sent)))
+                #pstring = [char2idx[char] for char in sent]  
+                #pstring = [text_to_sequence(char) for char in sent] 
+
+                pstring = text_to_sequence(sent)
+
+                texts.append(np.array(pstring, np.int32).tostring())
+                _texts_test.append(np.array(pstring, np.int32).tostring())
+                mels.append(os.path.join(config.data_paths, "mels", fname + ".npy")) #.decode('utf-8'))
+                if hp.include_dones:
+                    dones.append(os.path.join(config.data_paths, "dones", fname + ".npy")) #.decode('utf-8'))
+                if train_form != 'Encoder':
+                    mags.append(os.path.join(config.data_paths, "mags", fname + ".npy")) #.decode('utf-8'))
 
     return texts, _texts_test, mels, mags, dones
 

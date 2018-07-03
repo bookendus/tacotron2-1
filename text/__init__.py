@@ -6,7 +6,7 @@ import string
 import numpy as np
 
 from text import cleaners
-from hparams import hparams
+from hyperparams import Hyperparams as hp
 from text.symbols import symbols, PAD, EOS
 from text.korean import jamo_to_korean
 
@@ -24,7 +24,7 @@ def remove_puncuations(text):
     return text.translate(puncuation_table)
 
 def text_to_sequence(text, as_token=False):
-    cleaner_names = [x.strip() for x in hparams.cleaners.split(',')]
+    cleaner_names = [x.strip() for x in hp.cleaners.split(',')]
     return _text_to_sequence(text, cleaner_names, as_token)
 
 def _text_to_sequence(text, cleaner_names, as_token):

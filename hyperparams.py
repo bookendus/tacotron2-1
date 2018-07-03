@@ -46,6 +46,7 @@ class Hyperparams:
     outputs_per_step = 1
     n_feed = 200
     run_cmu = False
+    run_kr = True
     sinusoid = False
     normalization  = True
     
@@ -92,10 +93,10 @@ class Hyperparams:
     T_y = int(get_T_y(max_duration, sr, hop_length, r)) # Maximum length of sound (frames)
 
     # run options
-    test_graph = False
+    test_graph = True
     include_dones = True
     train_form = 'Both' # 'Encoder', 'Converter', 'Both'
-    test_only = 0
+    test_only = 1
     print_shapes = True
 
     # training scheme
@@ -121,5 +122,4 @@ class Hyperparams:
 
     # Remove rnn_wrappers
 
-    # google speech api
-    google_sleep_time = .1
+    cleaners = 'korean_cleaners'

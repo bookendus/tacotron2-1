@@ -37,7 +37,7 @@ def spectrogram2wav(mag):
     # trim
     wav, _ = librosa.effects.trim(wav)
 
-    return wav
+    return wav.astype(np.float32)
 
 def griffin_lim(spectrogram):
     X_best = copy.deepcopy(spectrogram)

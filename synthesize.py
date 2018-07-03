@@ -83,18 +83,19 @@ def synthesize_part(grp,config,gs,x_train,g_conv):
     rand = random.randint(0,hp.batch_size-1)
     x_train = x_train[rand]
     x_test = x_test[rand]
-
+ 
     wavs = []
     if g_conv is None:
         with grp.graph.as_default():
             sv = tf.train.Supervisor(logdir=config.log_dir)
             with sv.managed_session(config=tf.ConfigProto(allow_soft_placement=True)) as sess:
                 # Restore parameters
+                print(config.log_dir)
                 print("Restoring checkpoint : "+tf.train.latest_checkpoint(config.log_dir))
                 sv.saver.restore(sess, tf.train.latest_checkpoint(config.log_dir))
 
                 wavs = create_write_files(wavs,sess,grp,x_train,"sample_"+str(gs)+"_train_",config.log_dir,"train")
-                wavs = create_write_files(wavs,sess,grp,x_test,"sample_"+str(gs)+"_test_",config.log_dir,"test")
+                #wavs = create_write_files(wavs,sess,grp,x_test,"sample_"+str(gs)+"_test_",config.log_dir,"test")
 
                 sess.close()
     else:
